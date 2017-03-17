@@ -43,7 +43,7 @@ func mainE() error {
 		}
 
 		funcs := getFunctions(astf)
-		for _, st := range getStats(funcs) {
+		for _, st := range getStats(info.Name(), funcs) {
 			fmt.Printf("%10d   %5d   %s\n", st.statements, st.complexity, st.function)
 		}
 	}

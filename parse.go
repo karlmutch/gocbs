@@ -6,22 +6,39 @@ import (
 )
 
 type stat struct {
+	file       string
 	function   string
 	statements int
 	complexity int
 }
 
-func getStats(fns []*ast.FuncDecl) []stat {
+func getStats(filename string, fns []*ast.FuncDecl) []stat {
 	var stats []stat
 
 	for _, fn := range fns {
 		var s stat
+		s.function = filename + " "
+
+		if fn.Recv != nil {
+			if len(fn.Recv.List) == 1 {
+				expr := fn.Recv.List[0].Type
+				if se, is := expr.(*ast.StarExpr); is {
+					if v, is := se.X.(*ast.Ident); is {
+						s.function += "*" + v.Name + "."
+					}
+				}
+				if v, is := expr.(*ast.Ident); is {
+					s.function += v.Name + "."
+				}
+			}
+		}
 		if fn.Name != nil {
-			s.function = fn.Name.Name
+			s.function += fn.Name.Name
 		}
 		if fn.Body == nil {
 			continue
 		}
+
 		s.statements = numStatements(fn)
 		s.complexity = functionComplexity(fn)
 
