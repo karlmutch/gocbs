@@ -16,8 +16,6 @@ func main() {
 	}
 }
 
-var fset = token.NewFileSet()
-
 func mainE() error {
 	pwd, err := os.Getwd()
 	if err != nil {
@@ -37,14 +35,22 @@ func mainE() error {
 			continue
 		}
 
-		astf, err := parser.ParseFile(fset, info.Name(), nil, 0)
+		var fset = token.NewFileSet()
+		f, err := parser.ParseFile(fset, info.Name(), nil, 0)
 		if err != nil {
 			return err
 		}
 
-		funcs := getFunctions(astf)
+		// foo.go:14: unreachable code
+		funcs := getFunctions(f)
 		for _, st := range getStats(info.Name(), funcs) {
-			fmt.Printf("%10d   %5d   %s\n", st.statements, st.complexity, st.function)
+			fmt.Printf("%10d   %5d   %s:%d: %s\n",
+				st.statements,
+				st.complexity,
+				st.file,
+				fset.Position(st.pos).Line,
+				st.function,
+			)
 		}
 	}
 

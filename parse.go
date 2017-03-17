@@ -7,6 +7,7 @@ import (
 
 type stat struct {
 	file       string
+	pos        token.Pos
 	function   string
 	statements int
 	complexity int
@@ -16,25 +17,30 @@ func getStats(filename string, fns []*ast.FuncDecl) []stat {
 	var stats []stat
 
 	for _, fn := range fns {
-		var s stat
-		s.function = filename + " "
+		s := stat{file: filename}
 
 		if fn.Recv != nil {
 			if len(fn.Recv.List) == 1 {
 				expr := fn.Recv.List[0].Type
 				if se, is := expr.(*ast.StarExpr); is {
 					if v, is := se.X.(*ast.Ident); is {
-						s.function += "*" + v.Name + "."
+						s.function = "*" + v.Name + "."
 					}
 				}
 				if v, is := expr.(*ast.Ident); is {
-					s.function += v.Name + "."
+					s.function = v.Name + "."
 				}
 			}
 		}
+
 		if fn.Name != nil {
 			s.function += fn.Name.Name
 		}
+
+		if fn.Type != nil {
+			s.pos = fn.Type.Func
+		}
+
 		if fn.Body == nil {
 			continue
 		}
