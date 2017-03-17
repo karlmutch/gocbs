@@ -125,29 +125,25 @@ func maxDepth(block *ast.BlockStmt) int {
 		return 0
 	}
 
-	var depths []int
+	depths := []int{0}
 
 	for _, st := range block.List {
 		switch t := st.(type) {
 		case *ast.ForStmt:
-			depths = append(depths, maxDepth(t.Body))
+			depths = append(depths, maxDepth(t.Body)+1)
 		case *ast.IfStmt:
-			depths = append(depths, maxDepth(t.Body))
+			depths = append(depths, maxDepth(t.Body)+1)
 		case *ast.RangeStmt:
-			depths = append(depths, maxDepth(t.Body))
+			depths = append(depths, maxDepth(t.Body)+1)
 		case *ast.SelectStmt:
-			depths = append(depths, maxDepth(t.Body))
+			depths = append(depths, maxDepth(t.Body)+1)
 		case *ast.SwitchStmt:
-			depths = append(depths, maxDepth(t.Body))
+			depths = append(depths, maxDepth(t.Body)+1)
 		case *ast.TypeSwitchStmt:
-			depths = append(depths, maxDepth(t.Body))
+			depths = append(depths, maxDepth(t.Body)+1)
 		}
 	}
 
-	if len(depths) == 0 {
-		return 0
-	}
-
 	sort.Ints(depths)
-	return depths[0] + 1
+	return depths[len(depths)-1]
 }

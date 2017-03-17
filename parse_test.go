@@ -234,6 +234,24 @@ func TestMaxNest(t *testing.T) {
 					}
 				}`,
 			want: 4},
+		{src: `package main
+				func foo(bar int) {
+					for i := range []int{0} {
+						if true {
+							if false {
+								if true {
+									if false {
+										bar = 0
+									}
+								}
+								if true {
+									bar = 1
+								}
+							}
+						}
+					}
+				}`,
+			want: 6},
 	}
 
 	for i, c := range cases {
