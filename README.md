@@ -4,6 +4,18 @@ See how complex your code is.
 
 Show number of statements and cyclomatic complexity.
 
+Scan just the current package.
+
+```
+$ gocomplex
+```
+
+Scan recursively.
+
+```
+$ gocomplex ./...
+```
+
 ```
 $ gocomplex
 statements - cyclo - function
