@@ -3,6 +3,7 @@ package main
 import (
 	"go/ast"
 	"go/token"
+	"path/filepath"
 )
 
 type stat struct {
@@ -17,7 +18,7 @@ func getStats(filename string, fns []*ast.FuncDecl) []stat {
 	var stats []stat
 
 	for _, fn := range fns {
-		s := stat{file: filename}
+		s := stat{file: filepath.Base(filename)}
 
 		if fn.Recv != nil {
 			if len(fn.Recv.List) == 1 {

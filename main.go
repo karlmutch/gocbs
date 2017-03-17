@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 func main() {
@@ -17,33 +18,46 @@ func main() {
 }
 
 func mainE() error {
-	pwd, err := os.Getwd()
-	if err != nil {
-		return err
+	var files []string
+	var err error
+
+	if len(os.Args) == 2 {
+		if os.Args[1] == "./..." {
+			files, err = recursive(".")
+		} else if filepath.Ext(os.Args[1]) == ".go" {
+			files = append(files, os.Args[1])
+		} else if strings.HasSuffix(os.Args[1], "/...") {
+			p := os.Args[1]
+			p = p[:len(p)-len("/...")]
+			src := os.ExpandEnv("$GOPATH/src")
+
+			files, err = recursive(filepath.Join(src, p))
+		} else {
+			files, err = packageFiles(os.Args[1])
+		}
+	} else {
+		files, err = readdir(".")
 	}
-	infos, err := ioutil.ReadDir(pwd)
+
 	if err != nil {
 		return err
 	}
 
 	fmt.Println("statements - cyclo - function")
-	for _, info := range infos {
-		if info.IsDir() {
-			continue
-		}
-		if filepath.Ext(info.Name()) != ".go" {
+	for _, file := range files {
+		if filepath.Ext(file) != ".go" {
 			continue
 		}
 
 		var fset = token.NewFileSet()
-		f, err := parser.ParseFile(fset, info.Name(), nil, 0)
+		f, err := parser.ParseFile(fset, file, nil, 0)
 		if err != nil {
 			return err
 		}
 
 		// foo.go:14: unreachable code
 		funcs := getFunctions(f)
-		for _, st := range getStats(info.Name(), funcs) {
+		for _, st := range getStats(file, funcs) {
 			fmt.Printf("%10d   %5d   %s:%d: %s\n",
 				st.statements,
 				st.complexity,
@@ -55,4 +69,54 @@ func mainE() error {
 	}
 
 	return nil
+}
+
+func recursive(root string) ([]string, error) {
+	var files []string
+
+	err := filepath.Walk(root, func(p string, fi os.FileInfo, err error) error {
+		if fi == nil {
+			return nil
+		}
+		if fi.IsDir() {
+			return nil
+		}
+		if err != nil {
+			return err
+		}
+		if filepath.Ext(p) != ".go" {
+			return nil
+		}
+
+		files = append(files, p)
+		return nil
+	})
+
+	return files, err
+}
+
+func packageFiles(pkg string) ([]string, error) {
+	pkgPath := filepath.Join(os.ExpandEnv("$GOPATH/src/"), pkg)
+	return readdir(pkgPath)
+}
+
+func readdir(p string) ([]string, error) {
+	fis, err := ioutil.ReadDir(p)
+	if err != nil {
+		return nil, err
+	}
+
+	var files []string
+	for _, fi := range fis {
+		if fi.IsDir() {
+			continue
+		}
+		if filepath.Ext(fi.Name()) != ".go" {
+			continue
+		}
+
+		files = append(files, filepath.Join(p, fi.Name()))
+	}
+
+	return files, nil
 }
