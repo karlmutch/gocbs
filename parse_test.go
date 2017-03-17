@@ -140,23 +140,21 @@ func TestNumStatements(t *testing.T) {
 		src  string
 		want int
 	}{
-		/*
-			{src: `package main
-					func foo() {
-						fmt.Println("")
-					}`,
-				want: 1},
-			{src: `package main
-					func foo() {
-						if a := 0; a == 0 {}
-					}`,
-				want: 2},
-			{src: `package main
-					func foo() {
-						for i := 0; i < 10; i++ {}
-					}`,
-				want: 3},
-		*/
+		{src: `package main
+				func foo() {
+					fmt.Println("")
+				}`,
+			want: 1},
+		{src: `package main
+				func foo() {
+					if a := 0; a == 0 {}
+				}`,
+			want: 2},
+		{src: `package main
+				func foo() {
+					for i := 0; i < 10; i++ {}
+				}`,
+			want: 3},
 		{src: `package main
 				func foo(bar int) {
 					if bar != 0 {
@@ -192,7 +190,68 @@ func TestNumStatements(t *testing.T) {
 
 		have := numStatements(fns[0])
 		if have != c.want {
-			t.Error("unexpected function complexity")
+			t.Error("unexpected number of statements")
+			t.Errorf("%d: have: %d; want: %d", i, have, c.want)
+		}
+	}
+}
+
+func TestMaxNest(t *testing.T) {
+	cases := []struct {
+		src  string
+		want int
+	}{
+		{src: `package main
+				func foo() {
+					fmt.Println("")
+				}`,
+			want: 1},
+		{src: `package main
+				func foo(bar int) {
+					for i := 0; i < 10; i++ {
+						if true {
+							bar = 0
+						}
+					}
+				}`,
+			want: 3},
+		{src: `package main
+				func foo(bar int) {
+					if bar != 0 {
+						for true {
+							switch bar {
+							case 1:
+								bar = 2
+							case 2:
+							case 3:
+							default:
+							}
+							if false && true {
+							} else {
+							}
+							for i := 0; i < 0; i++ {}
+						}
+					}
+				}`,
+			want: 4},
+	}
+
+	for i, c := range cases {
+		f, err := parser.ParseFile(token.NewFileSet(), "TestFunctionComplexity", c.src, 0)
+		if err != nil {
+			t.Error("unexpected error: parsing source")
+			t.Errorf("%d: have: %s; want: nil", i, err)
+		}
+
+		fns := getFunctions(f)
+		if len(fns) != 1 {
+			t.Error("Unexpected number of functions")
+			t.FailNow()
+		}
+
+		have := maxNest(fns[0])
+		if have != c.want {
+			t.Error("unexpected max nesting")
 			t.Errorf("%d: have: %d; want: %d", i, have, c.want)
 		}
 	}

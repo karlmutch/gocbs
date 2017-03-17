@@ -4,14 +4,17 @@ import (
 	"go/ast"
 	"go/token"
 	"path/filepath"
+	"sort"
 )
 
 type stat struct {
-	file       string
-	pos        token.Pos
-	function   string
+	file     string
+	pos      token.Pos
+	function string
+
 	statements int
 	complexity int
+	nest       int
 }
 
 func getStats(filename string, fns []*ast.FuncDecl) []stat {
@@ -48,6 +51,7 @@ func getStats(filename string, fns []*ast.FuncDecl) []stat {
 
 		s.statements = numStatements(fn)
 		s.complexity = functionComplexity(fn)
+		s.nest = maxNest(fn)
 
 		stats = append(stats, s)
 	}
@@ -69,53 +73,81 @@ func getFunctions(f *ast.File) []*ast.FuncDecl {
 }
 
 func numStatements(fn *ast.FuncDecl) int {
-	v := &stmts{}
-	ast.Walk(v, fn)
-	return v.n
-}
+	var points int
 
-type stmts struct {
-	n int
-}
-
-func (s *stmts) Visit(node ast.Node) ast.Visitor {
-	if _, is := node.(*ast.BlockStmt); is {
-		return s
-	}
-
-	if _, is := node.(ast.Stmt); is {
-		s.n++
-	}
-	return s
-}
-
-type complexity struct {
-	n int
-}
-
-func (c *complexity) Visit(node ast.Node) ast.Visitor {
-	switch t := node.(type) {
-	case *ast.IfStmt, *ast.ForStmt:
-		c.n++
-	case *ast.CaseClause:
-		if t.List != nil {
-			c.n++
+	ast.Inspect(fn, func(n ast.Node) bool {
+		if _, is := n.(*ast.BlockStmt); is {
+			return true
 		}
-	case *ast.CommClause:
-		if t.Comm != nil {
-			c.n++
-		}
-	case *ast.BinaryExpr:
-		if t.Op == token.LAND || t.Op == token.LOR {
-			c.n++
-		}
-	}
 
-	return c
+		if _, is := n.(ast.Stmt); is {
+			points++
+		}
+
+		return true
+	})
+
+	return points
 }
 
 func functionComplexity(fn *ast.FuncDecl) int {
-	v := &complexity{1}
-	ast.Walk(v, fn)
-	return v.n
+	points := 1
+
+	ast.Inspect(fn, func(n ast.Node) bool {
+		switch t := n.(type) {
+		case *ast.IfStmt, *ast.ForStmt:
+			points++
+		case *ast.CaseClause:
+			if t.List != nil {
+				points++
+			}
+		case *ast.CommClause:
+			if t.Comm != nil {
+				points++
+			}
+		case *ast.BinaryExpr:
+			if t.Op == token.LAND || t.Op == token.LOR {
+				points++
+			}
+		}
+		return true
+	})
+
+	return points
+}
+
+func maxNest(fn *ast.FuncDecl) int {
+	return maxDepth(fn.Body) + 1
+}
+
+func maxDepth(block *ast.BlockStmt) int {
+	if block == nil {
+		return 0
+	}
+
+	var depths []int
+
+	for _, st := range block.List {
+		switch t := st.(type) {
+		case *ast.ForStmt:
+			depths = append(depths, maxDepth(t.Body))
+		case *ast.IfStmt:
+			depths = append(depths, maxDepth(t.Body))
+		case *ast.RangeStmt:
+			depths = append(depths, maxDepth(t.Body))
+		case *ast.SelectStmt:
+			depths = append(depths, maxDepth(t.Body))
+		case *ast.SwitchStmt:
+			depths = append(depths, maxDepth(t.Body))
+		case *ast.TypeSwitchStmt:
+			depths = append(depths, maxDepth(t.Body))
+		}
+	}
+
+	if len(depths) == 0 {
+		return 0
+	}
+
+	sort.Ints(depths)
+	return depths[0] + 1
 }

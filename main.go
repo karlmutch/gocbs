@@ -43,7 +43,7 @@ func mainE() error {
 		return err
 	}
 
-	fmt.Println("statements - cyclo - function")
+	fmt.Println("statements - cyclo - nesting - function")
 	for _, file := range files {
 		if filepath.Ext(file) != ".go" {
 			continue
@@ -58,9 +58,11 @@ func mainE() error {
 		// foo.go:14: unreachable code
 		funcs := getFunctions(f)
 		for _, st := range getStats(file, funcs) {
-			fmt.Printf("%10d   %5d   %s:%d: %s\n",
+			fmt.Printf("%10d   %5d   %7d   %s:%d: %s\n",
 				st.statements,
 				st.complexity,
+				st.nest,
+
 				st.file,
 				fset.Position(st.pos).Line,
 				st.function,
