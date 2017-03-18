@@ -3,9 +3,10 @@ package main
 import (
 	"flag"
 	"fmt"
-	"go/parser"
-	"go/token"
 	"log"
+
+	"github.com/variadico/gocomplex/filestats"
+	"github.com/variadico/gocomplex/funcstats"
 )
 
 func main() {
@@ -16,32 +17,53 @@ func main() {
 		log.Fatal(err)
 	}
 
-	if err := printResults(files); err != nil {
+	if err := printFuncStats(files); err != nil {
+		log.Fatal(err)
+	}
+	if err := printFileStats(files); err != nil {
 		log.Fatal(err)
 	}
 }
 
-func printResults(files []string) error {
+func printFuncStats(files []string) error {
 	fmt.Println("statements - cyclo - nesting - function")
 
 	for _, file := range files {
-		fset := token.NewFileSet()
-		f, err := parser.ParseFile(fset, file, nil, 0)
+		stats, err := funcstats.New(file)
 		if err != nil {
 			return err
 		}
 
-		for _, st := range getFuncStats(file, getFunctions(f)) {
+		for _, st := range stats {
 			fmt.Printf("%10d   %5d   %7d   %s:%d: %s\n",
-				st.numStmts,
-				st.complexity,
-				st.maxNest,
+				st.NumStmts,
+				st.Complexity,
+				st.MaxNest,
 
-				st.file,
-				fset.Position(st.pos).Line,
-				st.name,
+				st.File,
+				st.Line,
+				st.Name,
 			)
 		}
+	}
+
+	return nil
+}
+
+func printFileStats(files []string) error {
+	fmt.Println("functions - types - file")
+
+	for _, file := range files {
+		st, err := filestats.New(file)
+		if err != nil {
+			return err
+		}
+
+		fmt.Printf("%9d   %5d   %s\n",
+			st.Funcs,
+			st.Types,
+			st.Name,
+		)
 	}
 
 	return nil
