@@ -19,7 +19,7 @@ func getFunctions(f *ast.File) []*ast.FuncDecl {
 	return fns
 }
 
-func numStatements(fn *ast.FuncDecl) int {
+func numStmts(fn *ast.FuncDecl) int {
 	var points int
 
 	ast.Inspect(fn, func(n ast.Node) bool {
@@ -37,7 +37,7 @@ func numStatements(fn *ast.FuncDecl) int {
 	return points
 }
 
-func functionComplexity(fn *ast.FuncDecl) int {
+func complexity(fn *ast.FuncDecl) int {
 	points := 1
 
 	ast.Inspect(fn, func(n ast.Node) bool {

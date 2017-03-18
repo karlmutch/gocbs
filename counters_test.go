@@ -47,7 +47,7 @@ func TestGetFunctions(t *testing.T) {
 	}
 }
 
-func TestFunctionComplexity(t *testing.T) {
+func TestComplexity(t *testing.T) {
 	cases := []struct {
 		src  string
 		want int
@@ -127,7 +127,7 @@ func TestFunctionComplexity(t *testing.T) {
 			t.FailNow()
 		}
 
-		have := functionComplexity(fns[0])
+		have := complexity(fns[0])
 		if have != c.want {
 			t.Error("unexpected function complexity")
 			t.Errorf("%d: have: %d; want: %d", i, have, c.want)
@@ -135,7 +135,7 @@ func TestFunctionComplexity(t *testing.T) {
 	}
 }
 
-func TestNumStatements(t *testing.T) {
+func TestNumStmts(t *testing.T) {
 	cases := []struct {
 		src  string
 		want int
@@ -188,7 +188,7 @@ func TestNumStatements(t *testing.T) {
 			t.FailNow()
 		}
 
-		have := numStatements(fns[0])
+		have := numStmts(fns[0])
 		if have != c.want {
 			t.Error("unexpected number of statements")
 			t.Errorf("%d: have: %d; want: %d", i, have, c.want)

@@ -31,16 +31,15 @@ func printResults(files []string) error {
 			return err
 		}
 
-		funcs := getFunctions(f)
-		for _, st := range getStats(file, funcs) {
+		for _, st := range getFuncStats(file, getFunctions(f)) {
 			fmt.Printf("%10d   %5d   %7d   %s:%d: %s\n",
-				st.statements,
+				st.numStmts,
 				st.complexity,
-				st.nest,
+				st.maxNest,
 
-				st.file,
+				st.name,
 				fset.Position(st.pos).Line,
-				st.function,
+				st.funcName,
 			)
 		}
 	}

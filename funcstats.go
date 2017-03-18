@@ -7,30 +7,30 @@ import (
 	"strings"
 )
 
-type stat struct {
-	file     string
+type funcStat struct {
+	name     string
 	pos      token.Pos
-	function string
+	funcName string
 
-	statements int
+	numStmts   int
 	complexity int
-	nest       int
+	maxNest    int
 }
 
-func getStats(filename string, fns []*ast.FuncDecl) []stat {
-	var stats []stat
+func getFuncStats(filename string, fns []*ast.FuncDecl) []funcStat {
+	var stats []funcStat
 	prefix := os.ExpandEnv("$GOPATH/src/")
 
 	for _, fn := range fns {
-		var s stat
+		var s funcStat
 
 		if strings.HasPrefix(filename, prefix) {
-			s.file = filename[len(prefix):]
+			s.name = filename[len(prefix):]
 		} else {
-			s.file = filename
+			s.name = filename
 		}
 
-		s.function = funcName(fn)
+		s.funcName = funcName(fn)
 
 		if fn.Type != nil {
 			s.pos = fn.Type.Func
@@ -40,9 +40,9 @@ func getStats(filename string, fns []*ast.FuncDecl) []stat {
 			continue
 		}
 
-		s.statements = numStatements(fn)
-		s.complexity = functionComplexity(fn)
-		s.nest = maxNest(fn)
+		s.numStmts = numStmts(fn)
+		s.complexity = complexity(fn)
+		s.maxNest = maxNest(fn)
 
 		stats = append(stats, s)
 	}
