@@ -8,9 +8,9 @@ import (
 )
 
 type funcStat struct {
-	name     string
-	pos      token.Pos
-	funcName string
+	file string
+	pos  token.Pos
+	name string
 
 	numStmts   int
 	complexity int
@@ -25,12 +25,12 @@ func getFuncStats(filename string, fns []*ast.FuncDecl) []funcStat {
 		var s funcStat
 
 		if strings.HasPrefix(filename, prefix) {
-			s.name = filename[len(prefix):]
+			s.file = filename[len(prefix):]
 		} else {
-			s.name = filename
+			s.file = filename
 		}
 
-		s.funcName = funcName(fn)
+		s.name = funcName(fn)
 
 		if fn.Type != nil {
 			s.pos = fn.Type.Func

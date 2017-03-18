@@ -37,9 +37,9 @@ func printResults(files []string) error {
 				st.complexity,
 				st.maxNest,
 
-				st.name,
+				st.file,
 				fset.Position(st.pos).Line,
-				st.funcName,
+				st.name,
 			)
 		}
 	}
