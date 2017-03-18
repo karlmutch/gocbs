@@ -10,18 +10,29 @@ import (
 )
 
 func main() {
+	funcOn := flag.Bool("func", false, "Display func level stats (Default)")
+	fileOn := flag.Bool("file", false, "Display file level stats")
 	flag.Parse()
+
+	if !*funcOn && !*fileOn {
+		*funcOn = true
+	}
 
 	files, err := filePaths(flag.Args())
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	if err := printFuncStats(files); err != nil {
-		log.Fatal(err)
+	if *funcOn {
+		if err := printFuncStats(files); err != nil {
+			log.Fatal(err)
+		}
 	}
-	if err := printFileStats(files); err != nil {
-		log.Fatal(err)
+
+	if *fileOn {
+		if err := printFileStats(files); err != nil {
+			log.Fatal(err)
+		}
 	}
 }
 
