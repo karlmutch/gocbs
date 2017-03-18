@@ -7,14 +7,16 @@ import (
 
 	"github.com/variadico/gocomplex/filestats"
 	"github.com/variadico/gocomplex/funcstats"
+	"github.com/variadico/gocomplex/pkgstats"
 )
 
 func main() {
 	funcOn := flag.Bool("func", false, "Display func level stats (Default)")
 	fileOn := flag.Bool("file", false, "Display file level stats")
+	pkgOn := flag.Bool("pkg", false, "Display package level stats")
 	flag.Parse()
 
-	if !*funcOn && !*fileOn {
+	if !*funcOn && !*fileOn && !*pkgOn {
 		*funcOn = true
 	}
 
@@ -31,6 +33,12 @@ func main() {
 
 	if *fileOn {
 		if err := printFileStats(files); err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	if *pkgOn {
+		if err := printPkgStats(files); err != nil {
 			log.Fatal(err)
 		}
 	}
@@ -76,6 +84,21 @@ func printFileStats(files []string) error {
 			st.Types,
 			st.Name,
 		)
+	}
+
+	return nil
+}
+
+func printPkgStats(dirs []string) error {
+	fmt.Println("files - functions - types - vars - package")
+
+	for _, dir := range dirs {
+		st, err := pkgstats.New(dir)
+		if err != nil {
+			return err
+		}
+
+		fmt.Println(st)
 	}
 
 	return nil
