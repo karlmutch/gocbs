@@ -40,7 +40,7 @@ func TestFuncName(t *testing.T) {
 		have := funcName(fns[0])
 		if have != c.want {
 			t.Error("unexpected function name")
-			t.Errorf("%d: have: %d; want: %d", i, have, c.want)
+			t.Errorf("%d: have: %s; want: %s", i, have, c.want)
 		}
 	}
 }
