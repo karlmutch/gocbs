@@ -3,8 +3,9 @@ package main
 import (
 	"go/ast"
 	"go/token"
-	"path/filepath"
+	"os"
 	"sort"
+	"strings"
 )
 
 type stat struct {
@@ -19,9 +20,16 @@ type stat struct {
 
 func getStats(filename string, fns []*ast.FuncDecl) []stat {
 	var stats []stat
+	prefix := os.ExpandEnv("$GOPATH/src/")
 
 	for _, fn := range fns {
-		s := stat{file: filepath.Base(filename)}
+		var s stat
+
+		if strings.HasPrefix(filename, prefix) {
+			s.file = filename[len(prefix):]
+		} else {
+			s.file = filename
+		}
 
 		if fn.Recv != nil {
 			if len(fn.Recv.List) == 1 {
