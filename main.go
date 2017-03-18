@@ -26,7 +26,7 @@ func main() {
 }
 
 func printFuncStats(files []string) error {
-	fmt.Println("statements - cyclo - nesting - function")
+	fmt.Println("statements - cyclo - nesting - params - function")
 
 	for _, file := range files {
 		stats, err := funcstats.New(file)
@@ -35,10 +35,11 @@ func printFuncStats(files []string) error {
 		}
 
 		for _, st := range stats {
-			fmt.Printf("%10d   %5d   %7d   %s:%d: %s\n",
+			fmt.Printf("%10d   %5d   %7d   %6d   %s:%d: %s\n",
 				st.NumStmts,
 				st.Complexity,
 				st.MaxNest,
+				st.NumParams,
 
 				st.File,
 				st.Line,

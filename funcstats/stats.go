@@ -14,6 +14,7 @@ type Data struct {
 	Line int
 	Name string
 
+	NumParams  int
 	NumStmts   int
 	Complexity int
 	MaxNest    int
@@ -47,6 +48,7 @@ func New(filename string) ([]Data, error) {
 			continue
 		}
 
+		s.NumParams = numParams(fn)
 		s.NumStmts = numStmts(fn)
 		s.Complexity = complexity(fn)
 		s.MaxNest = maxNest(fn)
@@ -100,6 +102,18 @@ func funcName(fn *ast.FuncDecl) string {
 	}
 
 	return name
+}
+
+func numParams(fn *ast.FuncDecl) int {
+	if fn.Type == nil {
+		return 0
+	}
+
+	if fn.Type.Params == nil {
+		return 0
+	}
+
+	return len(fn.Type.Params.List)
 }
 
 func numStmts(fn *ast.FuncDecl) int {
