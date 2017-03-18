@@ -30,23 +30,7 @@ func getStats(filename string, fns []*ast.FuncDecl) []stat {
 			s.file = filename
 		}
 
-		if fn.Recv != nil {
-			if len(fn.Recv.List) == 1 {
-				expr := fn.Recv.List[0].Type
-				if se, is := expr.(*ast.StarExpr); is {
-					if v, is := se.X.(*ast.Ident); is {
-						s.function = "*" + v.Name + "."
-					}
-				}
-				if v, is := expr.(*ast.Ident); is {
-					s.function = v.Name + "."
-				}
-			}
-		}
-
-		if fn.Name != nil {
-			s.function += fn.Name.Name
-		}
+		s.function = funcName(fn)
 
 		if fn.Type != nil {
 			s.pos = fn.Type.Func
@@ -64,4 +48,36 @@ func getStats(filename string, fns []*ast.FuncDecl) []stat {
 	}
 
 	return stats
+}
+
+func funcName(fn *ast.FuncDecl) string {
+	// Regular function.
+	if fn.Recv == nil && fn.Name != nil {
+		return fn.Name.Name
+	}
+
+	if len(fn.Recv.List) != 1 {
+		return ""
+	}
+
+	var name string
+	expr := fn.Recv.List[0].Type
+
+	// Method on a pointer receiver.
+	if se, is := expr.(*ast.StarExpr); is {
+		if v, is := se.X.(*ast.Ident); is {
+			name = "*" + v.Name + "."
+		}
+	}
+
+	// Method on a value receiver.
+	if v, is := expr.(*ast.Ident); is {
+		name = v.Name + "."
+	}
+
+	if fn.Name != nil {
+		name += fn.Name.Name
+	}
+
+	return name
 }
