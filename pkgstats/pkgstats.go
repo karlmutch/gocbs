@@ -5,14 +5,14 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
-
-	"github.com/variadico/gocbs/stats"
 )
 
 const (
+	// Header is the package stats table header.
 	Header = "const - var - type - func - files - package"
 )
 
+// Tokens are the global keywords in a package.
 type Tokens struct {
 	Const int
 	Var   int
@@ -24,14 +24,13 @@ type Tokens struct {
 type Info struct {
 	// Name is the name of the package.
 	Name string
+	// Files is the number of files in the package.
+	Files int
 
 	// Exported contains a count of the exported tokens.
 	Exported Tokens
 	// NotExported contains a count of the not exported tokens.
 	NotExported Tokens
-
-	// Files is the number of files in a given package.
-	Files int
 }
 
 func (inf Info) String() string {
@@ -47,8 +46,9 @@ func (inf Info) String() string {
 	)
 }
 
+// New returns info about a package.
 func New(importPath string) (Info, error) {
-	files, err := stats.PackageFiles(importPath)
+	files, err := packageFiles(importPath)
 	if err != nil {
 		return Info{}, err
 	}
@@ -130,8 +130,8 @@ func countFuncs(inf *Info, decl *ast.FuncDecl) {
 	}
 
 	if ident := decl.Name; ast.IsExported(ident.Name) {
-		inf.Exported.Func += 1
+		inf.Exported.Func++
 		return
 	}
-	inf.NotExported.Func += 1
+	inf.NotExported.Func++
 }

@@ -6,18 +6,21 @@ import (
 	"go/parser"
 	"go/token"
 	"sort"
-
-	"github.com/variadico/gocbs/stats"
 )
 
 const (
+	// Header is the function stats table header.
 	Header = "params - stmts - cyclo - nest - func"
 )
 
+// Info contains the function stats.
 type Info struct {
-	File string
-	Line int
+	// Name is the name of the function.
 	Name string
+	// File is the file where the function lives.
+	File string
+	// Line is where the function starts.
+	Line int
 
 	Params int
 	Stmts  int
@@ -37,8 +40,9 @@ func (inf Info) String() string {
 	)
 }
 
+// New returns a slice of information of each function in a package.
 func New(importPath string) ([]Info, error) {
-	files, err := stats.PackageFiles(importPath)
+	files, err := packageFiles(importPath)
 	if err != nil {
 		return nil, err
 	}

@@ -2,6 +2,12 @@
 
 Find areas in your codebase that might need refactoring.
 
+## Install
+
+```
+go get -u github.com/variadico/gocbs/cmd/gocbs
+```
+
 ## Usage
 
 ```

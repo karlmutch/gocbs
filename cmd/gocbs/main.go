@@ -6,8 +6,8 @@ import (
 	"log"
 
 	"github.com/kisielk/gotool"
-	"github.com/variadico/gocbs/stats/fnstats"
-	"github.com/variadico/gocbs/stats/pkgstats"
+	"github.com/variadico/gocbs/fnstats"
+	"github.com/variadico/gocbs/pkgstats"
 )
 
 func main() {

@@ -1,4 +1,4 @@
-package stats
+package fnstats
 
 import (
 	"go/build"
@@ -12,7 +12,7 @@ var (
 	goSrc = filepath.Join(build.Default.GOPATH, "src")
 )
 
-func PackageFiles(dir string) ([]string, error) {
+func packageFiles(dir string) ([]string, error) {
 	var fis []os.FileInfo
 	var err error
 	if dir[0] == '.' {
