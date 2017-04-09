@@ -21,6 +21,29 @@ usage: gocbs [packages]
 
 ## Examples
 
+**Analyze functions in the current package.**
+
+```
+$ gocbs
+params - stmts - cyclo - nest - func
+     1      17       5      3   files.go:15 packageFiles
+     0       1       1      1   fnstats.go:31 Info.String
+     1      16       4      4   fnstats.go:44 New
+     1       7       2      3   fnstats.go:76 getFuncs
+     1      17       8      3   fnstats.go:89 funcName
+     2       6       2      2   fnstats.go:121 countProps
+     1       5       3      2   fnstats.go:132 countParams
+     1      10       3      1   fnstats.go:144 countStmts
+     1      17       9      1   fnstats.go:162 countCyclo
+     1       1       1      1   fnstats.go:188 countNest
+     1      20       8      3   fnstats.go:192 maxDepth
+     1      14       4      3   fnstats_test.go:9 TestFuncName
+     1      17       5      4   fnstats_test.go:48 TestGetFunctions
+     1      14       4      3   fnstats_test.go:89 TestComplexity
+     1      14       4      3   fnstats_test.go:177 TestNumStmts
+     1      14       4      3   fnstats_test.go:238 TestMaxNest
+```
+
 **Find the top 5 functions with the longest parameter list.**
 
 ```
