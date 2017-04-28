@@ -1,10 +1,36 @@
 import(
 	"log"
+	"os/exec"
 )
 
 func Install(g *gopher) {
 	err := g.Sh("go install -race github.com/variadico/gocbs/cmd/gocbs")
 	if err != nil {
 		log.Println(err)
+	}
+}
+
+func InstallTools(g *gopher) {
+	err := g.ShLines(
+		"go get -u honnef.co/go/tools/cmd/staticcheck",
+		"go get -u honnef.co/go/tools/cmd/unused",
+		"go get -u honnef.co/go/tools/cmd/gosimple",
+	)
+
+	if err != nil {
+		log.Println(err)
+	}
+}
+
+func CheckTools(g *gopher) {
+	tools := []string{
+		"staticcheck",
+		"gosimple",
+		"golint",
+	}
+	for _, t := range tools {
+		if _, err := exec.LookPath(t); err != nil {
+			log.Printf("Missing tool: %s", t)
+		}
 	}
 }
