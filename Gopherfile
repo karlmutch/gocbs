@@ -3,6 +3,18 @@ import(
 	"os/exec"
 )
 
+func Test(g *gopher) {
+	g.Sh("go test -cover -race ./...")
+}
+
+func UpdateDeps(g *gopher) {
+	g.ShLines(
+		"go get -u github.com/golang/dep/...",
+		"dep ensure -v -update",
+		"dep prune",
+	)
+}
+
 func Install(g *gopher) {
 	err := g.Sh("go install -race github.com/variadico/gocbs/cmd/gocbs")
 	if err != nil {
