@@ -1,0 +1,10 @@
+import(
+	"log"
+)
+
+func Install(g *gopher) {
+	err := g.Sh("go install -race github.com/variadico/gocbs/cmd/gocbs")
+	if err != nil {
+		log.Println(err)
+	}
+}
