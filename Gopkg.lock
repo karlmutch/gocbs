@@ -1,0 +1,7 @@
+memo = "4737b12af96bd1f10db77b23d46c754cab4eccc66d87d3707082e73845bef48f"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/kisielk/gotool"
+  packages = ["."]
+  revision = "0de1eaf82fa3f583ce21fde859f1e7e0c5e9b220"
