@@ -3,12 +3,8 @@ import(
 	"os/exec"
 )
 
-func Test(g *gopher) {
-	g.Sh("go test -cover -race ./...")
-}
-
 func UpdateDeps(g *gopher) {
-	g.ShLines(
+	g.Sh(
 		"go get -u github.com/golang/dep/...",
 		"dep ensure -v -update",
 		"dep prune",
@@ -23,10 +19,11 @@ func Install(g *gopher) {
 }
 
 func InstallTools(g *gopher) {
-	err := g.ShLines(
+	err := g.Sh(
 		"go get -u honnef.co/go/tools/cmd/staticcheck",
 		"go get -u honnef.co/go/tools/cmd/unused",
 		"go get -u honnef.co/go/tools/cmd/gosimple",
+		"go get -u golang.org/x/tools/cmd/goimports",
 	)
 
 	if err != nil {
